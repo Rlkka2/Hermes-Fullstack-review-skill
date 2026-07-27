@@ -12,8 +12,10 @@
 ## 📖 Table of Contents
 
 - [Quick Start](#-quick-start)
+- [Core Principle](#-core-principle)
 - [Core Capabilities](#-core-capabilities)
 - [Pipeline Architecture](#-pipeline-architecture)
+- [Two-Layer Defense](#-two-layer-defense)
 - [Cross-Platform Coverage](#-cross-platform-coverage)
 - [CLI Parameters](#-cli-parameters)
 - [Configuration](#-configuration)
@@ -38,7 +40,7 @@
 cp -r fullstack-review/ ~/AppData/Local/hermes/skills/software-development/fullstack-review/
 ```
 
-Or load directly in a Hermes conversation:
+Or load in a Hermes conversation:
 
 ```
 @skill fullstack-review
@@ -47,34 +49,29 @@ Or load directly in a Hermes conversation:
 ### Usage
 
 ```bash
-# Incremental mode (default, pre-commit)
+# Local pre-commit [Incremental Mode] (default)
 git add .
 hermes review
 
-# Specify platforms
-hermes review --platforms=mini
-
-# Force-enable scenarios
-hermes review --include=transaction,message_queue
-
-# Full baseline audit
+# CI pipeline [Full Baseline Mode], no degradation allowed
 hermes review --full
-
-# English report
-hermes review --lang=en
 ```
 
-### Commit Flow
+---
 
-```
-git add . && hermes review
-    ↓
-P0~P10 auto-run → Output report
-    ↓
-┌─ No Critical → Commit directly
-├─ Auto-fixable → Reply "fix" or "fix #1 #3"
-└─ Critical present → Must fix before commit
-```
+## 💡 Core Principle
+
+### Diff-Only: Only reviews the files you `git add`'ed
+
+In local pre-commit mode, **every stage only reads files from `git diff --cached`** — no full-repository traversal. If you only changed 2 CSS files, it only reviews those 2 files. Payment modules, auth code, and other unrelated code are left alone.
+
+### Context-Missing → Skip, never force full-scan
+
+When a check needs reference files outside the diff (e.g., route alignment needs both the frontend API file and the backend Controller in diff), it marks `⏭️ Skipped` with a clear reason instead of scanning the entire repo.
+
+### CI as the safety net
+
+Baseline checks skipped locally are enforced in CI via `--full` mode as the final merge gate.
 
 ---
 
@@ -82,22 +79,22 @@ P0~P10 auto-run → Output report
 
 ### 13-Stage Automated Pipeline
 
-| Stage | Name | Responsibility |
-|-------|------|---------------|
-| P0 | Project Detection | Framework ID + Monorepo detection |
-| P0.5 | Behavioral Detection | Feature-based scenario activation |
-| P1 | Change Scan | Code diff + text resources + deleted file risk |
-| P2 | Security Scan | 6 sub-modules (secrets/injection/CVE/log/env) |
-| P3 | Platform Adaptation | Cross-platform API + UX consistency |
-| P4 | Frontend-Backend Contract | API routing + DTO + error system |
-| P4.5 | State Consistency | SSOT + intermediate state fallback |
-| P4.6 | Multi-tenancy & Auth | Tenant isolation + privilege escalation + guards |
-| P5 | Business Deep Review | 7 scenarios on-demand, Tech+UX dual-branch |
-| P6 | Performance & Memory | Timer cleanup/race condition/re-render/virtual scroll |
-| P7 | a11y & i18n | Accessibility/internationalization/input tolerance/privacy |
-| P8 | Async Tasks | Progress persistence/timeout/page-close recovery |
-| P9 | AI Reviewer | Independent sub-agent + confidence filtering |
-| P10 | Report | Dual-label report + auto fix_priority |
+| Stage | Name | Scan Scope |
+|-------|------|-----------|
+| P0 | Project Detection | `package.json` (single file) |
+| P0.5 | Behavioral Detection | Diff files only for scenario inference |
+| P1 | Change Scan | `git diff --cached` |
+| P2 | Security Scan | Diff `+` lines (incl. CVE/log/env) |
+| P3 | Platform Adaptation | Diff files only |
+| P4 | Frontend-Backend Contract | Both sides in diff → compare; one side missing → ⏭️ |
+| P4.5 | State Consistency | Diff files only |
+| P4.6 | Multi-tenancy & Auth | Layered: self-check ✅ (always) + cross-file ⏭️ (skip if context missing) |
+| P5 | Business Deep Review | Diff files in activated scenarios only; no match → ⏭️ |
+| P6 | Performance & Memory | Diff components only |
+| P7 | a11y & i18n | Diff components only |
+| P8 | Async Tasks | No queue files in diff → ⏭️ skip |
+| P9 | AI Reviewer | Diff fed to AI + confidence filter |
+| P10 | Report | Status column (✅/⚠️/⏭️) + skip reasons |
 | P11 | On-demand Fix | Allowlist/Blocklist + compile check + re-validation |
 
 ### 7 Business Scenarios
@@ -119,10 +116,21 @@ P0~P10 auto-run → Output report
 🧑 UX Risk:  State Persistence/Error Classification/Weak-network Fallback/Dedup/Pre-validation
 ```
 
-### Smart Auto-fix
+---
 
-- ✅ **Allowed**: styles, imports, conditional compilation, text, TS types
-- ❌ **Blocked**: concurrency, transactions, payments, state machines, signatures, DB, auth, MQ, tenants
+## 🛡️ Two-Layer Defense
+
+```
+① Local pre-commit (Incremental)
+   git add . → hermes review
+   Diff-only → Fast → Skip if context missing
+   Goal: Incremental pre-flight, keep development fluid
+
+② CI pipeline (Full Baseline)
+   hermes review --full
+   Full-repo scan → Slower but complete → No degradation allowed
+   Goal: Final merge gate
+```
 
 ---
 
@@ -147,7 +155,7 @@ P0~P10 auto-run → Output report
 | `--platforms=<list>` | Override platforms | `--platforms=web,h5,mini` |
 | `--include=<list>` | Force-enable scenarios | `--include=transaction` |
 | `--exclude=<list>` | Disable scenarios | `--exclude=benefits` |
-| `--full` | Full baseline mode | `hermes review --full` |
+| `--full` | Full baseline mode (CI) | `hermes review --full` |
 | `--lang=<zh\|en>` | Report language | `--lang=en` |
 | `--force-review` | Skip High blocks | `--force-review` |
 
@@ -189,56 +197,58 @@ P0~P10 auto-run → Output report
 ╚══════════════════════════════════════════════════╝
 
 📊 Overview
-┌──────────────────┬────┬────┬────┬────┬──────┬──────────┐
-│ Dimension         │ 🔴 │ 🟠 │ 🟡 │ 🔵 │ 🚨UX │ Status   │
-├──────────────────┼────┼────┼────┼────┼──────┼──────────┤
-│ Security P2       │  2 │  1 │  0 │  0 │   0  │ ✅ Done   │
-│ Platform P3       │  0 │  2 │  3 │  0 │   2  │ ✅ Done   │
-│ Transaction P5.1  │  0 │  2 │  1 │  0 │   3  │ ✅ Done   │
-│ Resource P5.3     │  — │  — │  — │  — │   —  │ ⏭️ Skipped │
-│ ...               │    │    │    │    │      │          │
-├──────────────────┼────┼────┼────┼────┼──────┼──────────┤
-│ Total             │  4 │  8 │  8 │  1 │   6  │ 3 skipped │
-└──────────────────┴────┴────┴────┴────┴──────┴──────────┘
+┌──────────────────┬────┬────┬────┬────┬──────┬──────────┬─────────────────────────┐
+│ Dimension         │ 🔴 │ 🟠 │ 🟡 │ 🔵 │ 🚨UX │ Status   │ Skip Reason              │
+├──────────────────┼────┼────┼────┼────┼──────┼──────────┼─────────────────────────┤
+│ Security P2       │  2 │  1 │  0 │  0 │   0  │ ✅ Full   │                         │
+│ Route Align P4    │  — │  — │  — │  — │   —  │ ⏭️ Skip   │ Backend Controller not   │
+│                  │    │    │    │    │      │          │ in diff                 │
+│ Auth P4.6         │  0 │  1 │  0 │  0 │   0  │ ⚠️ Partial │ Self-check done; cross   │
+│                  │    │    │    │    │      │          │ comparison skipped       │
+│ Transaction P5.1  │  0 │  2 │  1 │  0 │   3  │ ✅ Full   │                         │
+│ Resource P5.3     │  — │  — │  — │  — │   —  │ ⏭️ Skip   │ Not detected by P0.5    │
+│ Async Task P8     │  — │  — │  — │  — │   —  │ ⏭️ Skip   │ No queue code in diff    │
+│ ...               │    │    │    │    │      │          │                         │
+├──────────────────┼────┼────┼────┼────┼──────┼──────────┼─────────────────────────┤
+│ Total             │  3 │  8 │  5 │  1 │   5  │ 4 skipped │                         │
+└──────────────────┴────┴────┴────┴────┴──────┴──────────┴─────────────────────────┘
 
 🔧 Auto-fixable: 8 issues | ⚠️ Manual review: 6 issues
 → Reply "fix" to start auto-fix
 ```
 
+### Status Types
+
+| Status | Meaning | Trigger |
+|--------|---------|---------|
+| ✅ Full | All checks complete | All within diff scope |
+| ⚠️ Partial | Partial execution | P4.6 only: self-check done, comparison skipped |
+| ⏭️ Skip | Context insufficient | Reference files not in diff / P0.5 not activated |
+
 Each issue carries four labels:
 
-| Label | Values | Description |
-|-------|--------|-------------|
-| Severity | `Critical` / `High` / `Medium` / `Info` | Technical severity |
-| Experience Risk | `high_complaint` / `medium_complaint` / `no_risk` | UX complaint risk |
-| Fix Priority | `block` / `this_iteration` / `next_iteration` / `optional` | Auto-assigned priority |
-| Source | `【Static Rule】` / `【AI Review】` | Detection origin |
+| Label | Values |
+|-------|--------|
+| Severity | `Critical` / `High` / `Medium` / `Info` |
+| Experience Risk | `high_complaint` / `medium_complaint` / `no_risk` |
+| Fix Priority | `block` / `this_iteration` / `next_iteration` / `optional` |
+| Source | `【Static Rule】` / `【AI Review】` |
 
 ---
 
 ## ❓ FAQ
 
 <details>
-<summary><b>How is this different from <code>requesting-code-review</code>?</b></summary>
+<summary><b>I only changed 2 CSS files. Will it scan the whole repo?</b></summary>
 
-| | requesting-code-review | fullstack-review |
-|---|---|---|
-| Languages | General | TS/React/NestJS deep |
-| Platform-aware | No | Web/H5/App/Mini Program |
-| Frontend-Backend | No | API contract + DTO + error system |
-| Scenarios | No | 7 on-demand |
-| UX Review | No | Dual-branch |
-| Multi-tenancy/Auth | No | ✅ |
-| Dependency security | No | ✅ |
-
-Both can coexist.
+No. Local mode follows the **Diff-Only Principle** — only `git add`'ed files are reviewed. 2 CSS files → only P1/P2/P3/P10 run, results in seconds. P4/P5/P8 and other irrelevant modules are ⏭️ skipped.
 
 </details>
 
 <details>
-<summary><b>Will MQ checks slow down projects without message queues?</b></summary>
+<summary><b>What if the backend Controller isn't in the diff?</b></summary>
 
-No. MQ scenarios activate on-demand via P0.5 dual-detection. Zero overhead without MQ dependencies.
+Route alignment marks `⏭️ Skip: Backend Controller not in diff, cannot compare`. No full-repo scan. This check is enforced in CI `--full` mode.
 
 </details>
 
