@@ -1,6 +1,6 @@
 ---
 name: fullstack-review
-description: "React+TS+NestJS 服务业 SaaS 全栈预提交自动化评审 Skill，覆盖 Web/H5/RN/小程序四端，15 阶段审查流水线（P0~P11 含子阶段），7 大业务场景 + AI 应用安全，内置多租户鉴权、支付、MQ 安全校验，支持 AI 逻辑评审与可控自动修复，区分技术故障与用户投诉双维度风险。"
+description: "React+TS+NestJS 服务业 SaaS 全栈预提交自动化评审 Skill，覆盖 Web/H5/RN/小程序四端，15 阶段审查流水线（P0~P11 含子阶段），8 大业务场景（含 AI 应用安全），内置多租户鉴权、支付、MQ 安全校验，支持 AI 逻辑评审与可控自动修复，区分技术故障与用户投诉双维度风险。"
 version: 6.3.2
 author: Hermes Agent
 license: MIT
