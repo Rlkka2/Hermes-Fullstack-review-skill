@@ -133,8 +133,7 @@ Return ONLY this JSON:
   ],
   "summary": "一句话综述（中文）"
 }""",
-    context="Independent code review sub-agent. Return only valid JSON.",
-    enabled_toolsets=["terminal", "file"]
+    context="Independent code review sub-agent. Return only valid JSON."
 )
 ```
 

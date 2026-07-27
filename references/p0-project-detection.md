@@ -88,6 +88,8 @@ Monorepo 项目示例：
 | Message Queue（消息队列行为） | 依赖包：`bull`/`bullmq`/`amqplib`/`kafkajs`/`@nestjs/bull`/`@nestjs/microservices`；代码特征：`@Queue()`/`@Process()`/`@MessagePattern()` 装饰器、`sendQueue`/`publish`/`consume`/`emit` 方法调用 | `message_queue` |
 | AI Application（AI 应用行为） | 依赖包：`openai`/`langchain`/`@langchain/core`/`anthropic`/`llamaindex`/`@azure/openai`/`chromadb`/`pinecone-client`/`weaviate-client`/`pgvector`/`tiktoken`/`gpt-tokenizer`；代码特征：`chatWithAI`/`generateAnswer`/`askLLM`/`RAG`/`vectorStore`/`embedding` 等函数调用 | `ai_application` |
 
+### 补充说明（MQ 与 AI Application 激活逻辑）
+
 > **MQ 双重判定逻辑**：①检测项目是否引入 `bull` / `bullmq` / `amqplib` / `kafkajs` / `@nestjs/bull` 等 MQ 依赖包；②代码中是否存在 `@Queue()` 装饰器、`sendQueue` / `publish` / `consume` 等业务方法调用。满足**任意一类**即提升置信度，两类同时命中判定为 **High 置信自动激活**，无需人工确认。
 >
 > **AI Application 激活逻辑**：检测到 LLM SDK（openai/langchain 等）或向量数据库（chromadb/pinecone 等）或 RAG 框架（+ tokenizer）中**任意一项** → Medium 置信度激活；满足**两项及以上** → High 置信自动激活。

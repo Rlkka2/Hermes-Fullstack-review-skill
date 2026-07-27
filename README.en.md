@@ -79,7 +79,7 @@ Baseline checks skipped locally are enforced in CI via `--full` mode as the fina
 
 ## 🔧 Core Capabilities
 
-### 13-Stage Automated Pipeline
+### 15-Stage Automated Pipeline
 
 | Stage | Name | Scan Scope |
 |-------|------|-----------|
@@ -205,9 +205,10 @@ P2.7 auto-activates when LLM SDK/vector DB/RAG framework deps detected:
       "info_exchange": "auto",
       "message_queue": "auto"
     },
-    "ai_reviewer": { "confidence_threshold": 0.75 },
-    "auto_fix": { "max_rounds": 2 },
-    "report": { "lang": "zh", "output_format": ["terminal", "markdown"] }
+    "ai_reviewer": { "confidence_threshold": 0.75, "diff_shard_threshold": 15000 },
+    "auto_fix": { "max_rounds": 2, "allowlist_extend": [], "blocklist_extend": [] },
+    "report": { "lang": "zh", "output_format": ["terminal", "markdown"] },
+    "suppressions": []
   }
 }
 ```
@@ -259,7 +260,7 @@ Each issue carries four labels:
 | Severity | `Critical` / `High` / `Medium` / `Info` |
 | Experience Risk | `high_complaint` / `medium_complaint` / `no_risk` |
 | Fix Priority | `block` / `this_iteration` / `next_iteration` / `optional` |
-| Source | `【Static Rule】` / `【AI Review】` |
+| Source | `【Static Rule】` / `🤖【AI推断-待确认】` / `【Static+AI】` |
 
 ---
 
@@ -268,7 +269,7 @@ Each issue carries four labels:
 <details>
 <summary><b>I only changed 2 CSS files. Will it scan the whole repo?</b></summary>
 
-No. Local mode follows the **Diff-Only Principle** — only `git add`'ed files are reviewed. 2 CSS files → only P1/P2/P3/P10 run, results in seconds. P4/P5/P8 and other irrelevant modules are ⏭️ skipped.
+No. Local mode follows the **Diff-Only Principle** — only `git add`'ed files are reviewed. 2 CSS files → Fast Path identifies as "frontend styles" tier, only runs basic style compliance + P10, results in seconds. P4/P5/P8 and other irrelevant modules are ⏭️ skipped.
 
 </details>
 
