@@ -270,9 +270,9 @@ Route alignment marks `⏭️ Skip: Backend Controller not in diff, cannot compa
 
 ## 📦 Roadmap
 
-- [ ] v2: Historical baseline comparison
-- [ ] v2: CI/CD native integration (GitHub Actions / GitLab CI)
-- [ ] v2: Custom rule extension API
+- [ ] v7: Historical baseline comparison (store reports, track defect trends)
+- [ ] v7: CI/CD native integration plugins (GitHub Actions / GitLab CI)
+- [ ] v7: Custom rule extension API
 
 ---
 

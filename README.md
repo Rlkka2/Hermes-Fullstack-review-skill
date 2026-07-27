@@ -268,9 +268,9 @@ hermes review --full
 
 ## 📦 Roadmap
 
-- [ ] v2：历史基线对比
-- [ ] v2：CI/CD 原生集成（GitHub Actions / GitLab CI）
-- [ ] v2：自定义规则扩展接口
+- [ ] v7：历史基线对比（存储历史报表，追踪缺陷趋势）
+- [ ] v7：CI/CD 原生集成插件（GitHub Actions / GitLab CI）
+- [ ] v7：自定义规则扩展接口
 
 ---
 
