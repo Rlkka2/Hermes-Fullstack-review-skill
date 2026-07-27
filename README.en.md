@@ -301,6 +301,7 @@ Route alignment marks `⏭️ Skip: Backend Controller not in diff, cannot compa
 - [ ] v7: CI/CD native integration plugins (GitHub Actions / GitLab CI)
 - [ ] v7: Custom rule extension API
 - [ ] v7: Fast Path intelligent path detection (replace hardcoded high-risk list with import-frequency-based auto-detection)
+- [ ] v7: `hermes review --list-suppressions` command to view suppressed alerts
 
 ---
 

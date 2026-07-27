@@ -299,6 +299,7 @@ hermes review --full
 - [ ] v7：CI/CD 原生集成插件（GitHub Actions / GitLab CI）
 - [ ] v7：自定义规则扩展接口
 - [ ] v7：Fast Path 智能路径检测（替代硬编码高风险路径名单，基于 import 频率自动识别）
+- [ ] v7：`hermes review --list-suppressions` 已抑制告警查看命令
 
 ---
 

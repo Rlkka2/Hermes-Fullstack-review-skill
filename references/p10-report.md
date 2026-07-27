@@ -81,6 +81,8 @@
 ├──────────────────┼────┼────┼────┼────┼──────┼──────────┼──────────────────────────────┤
 │ 合计              │  5 │ 14 │ 11 │  3 │   9  │ 6模块跳过  │                              │
 └──────────────────┴────┴────┴────┴────┴──────┴──────────┴──────────────────────────────┘
+
+📎 已抑制: 3 项（其中 1 项缺少时间戳 → 建议补充）
 ```
 
 ### 状态枚举
@@ -99,16 +101,16 @@
 
 ```
 🔴 Critical (阻断提交) — 共 6 项
-┌────┬──────────┬────────────┬──────────┬──────────┬──────────────────┬──────────────┐
-│ #  │ Severity │ Category   │ Location │ UX Risk  │ Fix Priority     │ Source       │
-├────┼──────────┼────────────┼──────────┼──────────┼──────────────────┼──────────────┤
-│ 1  │ 🔴 Crit  │ Security   │ a.ts:45  │ no_risk  │ block            │【静态规则】   │
-│ 2  │ 🔴 Crit  │ Security   │ b.ts:120 │ no_risk  │ block            │【静态规则】   │
-│ 3  │ 🔴 Crit  │ Env Config │ c.ts:12  │ no_risk  │ block            │【静态规则】   │
-│ 4  │ 🔴 Crit  │ Multi-tenant│ d.ts:200│ high     │ block            │🤖【AI推断-待确认】  │
-│ 5  │ 🔴 Crit  │ MQ          │ e.ts:88  │ high     │ block            │【静态规则】   │
-│ 6  │ 🔴 Crit  │ State      │ f.tsx:33 │ high     │ block            │【静态规则+AI评审】│
-└────┴──────────┴────────────┴──────────┴──────────┴──────────────────┴──────────────┘
+┌────┬──────────┬─────────────────────────┬──────────┬──────────┬──────────┬──────────────────┬──────────────┐
+│ #  │ Severity │ Rule ID                  │ Location │ Category │ UX Risk  │ Fix Priority     │ Source       │
+├────┼──────────┼─────────────────────────┼──────────┼──────────┼──────────┼──────────────────┼──────────────┤
+│ 1  │ 🔴 Crit  │ P2.1-hardcoded_secret    │ a.ts:45  │ Security │ no_risk  │ block            │【静态规则】   │
+│ 2  │ 🔴 Crit  │ P2.1-hardcoded_secret    │ b.ts:120 │ Security │ no_risk  │ block            │【静态规则】   │
+│ 3  │ 🔴 Crit  │ P2.6-env_config          │ c.ts:12  │ Env Conf │ no_risk  │ block            │【静态规则】   │
+│ 4  │ 🔴 Crit  │ P4.6-horizontal          │ d.ts:200 │ Multi-tn │ high     │ block            │🤖【AI推断-待确认】│
+│ 5  │ 🔴 Crit  │ P5.2-ext-idempotent       │ e.ts:88  │ MQ       │ high     │ block            │【静态规则】   │
+│ 6  │ 🔴 Crit  │ P4.5-ssot                │ f.tsx:33 │ State    │ high     │ block            │【静态规则+AI评审】│
+└────┴──────────┴─────────────────────────┴──────────┴──────────┴──────────┴──────────────────┴──────────────┘
 
 🟠 High — 共 16 项（含 🚨高投诉 9 项）
   优先修复 (fix_priority: this_iteration) — 9 项
@@ -120,7 +122,7 @@
 ### 每条缺陷标签格式
 
 ```
-{id} | {issue_type} | {severity} | {category} | {file}:{line} | {description} | {experience_risk} | {fix_priority} | {source}
+{id} | {issue_type} | {severity} | {rule_id} | {category} | {file}:{line} | {description} | {experience_risk} | {fix_priority} | {source}
 
 其中：
   issue_type: tech_risk | ux_risk | ux_derived_asset_loss
@@ -220,5 +222,24 @@
 `⚠️ 部分` 状态进一步拆分为：
 
 > 已完成【文件内 Guard 自检 / 前端路由权限自检】；未执行【跨文件基线一致性对比】，原因：上下文不足
+
+### 已抑制告警区（Suppressed Items）
+
+抑制项不计入缺陷统计，归入折叠区展示：
+
+```
+📎 已抑制告警 — 共 3 项（折叠，点击展开）
+
+┌────┬─────────────────────────┬──────────┬──────────────────────────────────────────────┬──────────────┐
+│ #  │ Rule ID                  │ Location │ Reason                                       │ Suppressed   │
+├────┼─────────────────────────┼──────────┼──────────────────────────────────────────────┼──────────────┤
+│ S1 │ P9-AI-ux_gap            │ pay.ts:45│ 已核实——产品设计决策                            │ 2026-07-27   │
+│ S2 │ P2.1-hardcoded_secret   │ cfg.ts:12│ 测试环境Mock密钥，生产环境由CI注入               │ ⚠️ 缺时间戳   │
+│ S3 │ P4.6-horizontal         │ d.ts:200 │ 跨租户查询已有中间件校验                         │ 2026-07-20   │
+└────┴─────────────────────────┴──────────┴──────────────────────────────────────────────┴──────────────┘
+
+> Rule ID 格式为 `{阶段}-{来源}-{类别}`（如 `P2.1-hardcoded_secret`、`P9-AI-ux_gap`），可直接复制到 `suppressions[].rule`
+> 查看已抑制告警：`hermes review --list-suppressions`（v7）
+```
 
 ---
