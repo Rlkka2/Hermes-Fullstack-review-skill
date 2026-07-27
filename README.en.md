@@ -83,7 +83,7 @@ Baseline checks skipped locally are enforced in CI via `--full` mode as the fina
 |-------|------|-----------|
 | P0 | Project Detection | `package.json` (single file) |
 | P0.5 | Behavioral Detection | Diff files only for scenario inference |
-| P1 | Change Scan | `git diff --cached` |
+| P1 | Change Scan | `git diff --cached`; incl. same-dir related file inference |
 | P2 | Security Scan | Diff new lines (incl. CVE/log/env/AI app security) |
 | P3 | Platform Adaptation | Diff files only |
 | P4 | Frontend-Backend Contract | Both sides in diff → compare; one side missing → ⏭️ |
@@ -130,6 +130,15 @@ P2.7 auto-activates when LLM SDK/vector DB/RAG framework deps detected:
 - **Output safety**: format validation + XSS sanitization for LLM-generated content
 - **Prompt injection**: user input sanitization before prompt assembly
 - **Token management**: topK/score/maxTokens limits for retrieval context
+
+### Audit Enhancement (v6.3)
+
+9 fixes from a deep security audit, focused on trustworthiness & coverage:
+- **🤖 AI Conclusion Downgrade**: AI-only findings tagged `🤖【AI推断-待确认】` to visually distinguish from static rules; asset-loss escalation threshold 0.9→0.95
+- **~ Medium Transparency**: P0.5 Medium-confidence scenarios prefixed with `~` in reports, annotated "P0.5 inference — verify"
+- **📎 Related File Hints**: P1 now checks same-directory Controller↔Service pairs, warns when counterpart not in diff
+- **🔧 P11 Implementation Details**: temp directory structure + 6-step write flow + 5-scenario rollback strategy
+- **📋 Framework Mismatch Hint**: auto-detects non-React/NestJS projects and suggests alternative skills
 
 ---
 
@@ -288,6 +297,7 @@ Route alignment marks `⏭️ Skip: Backend Controller not in diff, cannot compa
 - [ ] v7: Historical baseline comparison (store reports, track defect trends)
 - [ ] v7: CI/CD native integration plugins (GitHub Actions / GitLab CI)
 - [ ] v7: Custom rule extension API
+- [ ] v7: Fast Path intelligent path detection (replace hardcoded high-risk list with import-frequency-based auto-detection)
 
 ---
 
