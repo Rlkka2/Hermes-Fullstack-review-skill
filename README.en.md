@@ -91,10 +91,10 @@ Baseline checks skipped locally are enforced in CI via `--full` mode as the fina
 | P4.6 | Multi-tenancy & Auth | Layered: self-check ✅ (always) + cross-file ⏭️ (skip if context missing) |
 | P5 | Business Deep Review | Diff files in activated scenarios only; no match → ⏭️ |
 | P6 | Performance & Memory | Diff components only |
-| P7 | a11y & i18n | Diff components only |
+| P7 | a11y/i18n/UX Interaction | Diff components only; 6 static UX rules (confirm/anti-duplicate/error-wrapping, etc.) |
 | P8 | Async Tasks | No queue files in diff → ⏭️ skip |
-| P9 | AI Reviewer | Diff fed to AI + confidence filter |
-| P10 | Report | Status column (✅/⚠️/⏭️) + skip reasons |
+| P9 | AI Reviewer | Diff + UX path simulation + confidence filter + dual-dimension output |
+| P10 | Report | Tech/UX dual panels + status column + skip reasons |
 | P11 | On-demand Fix | Allowlist/Blocklist + compile check + re-validation |
 
 ### 7 Business Scenarios
@@ -115,6 +115,13 @@ Baseline checks skipped locally are enforced in CI via `--full` mode as the fina
 🔒 Tech Risk: Concurrency/Transaction/Idempotency/Data Integrity/Signature
 🧑 UX Risk:  State Persistence/Error Classification/Weak-network Fallback/Dedup/Pre-validation
 ```
+
+### UX Enhancement (v6.1)
+
+- **6 Static UX Rules**: delete confirmation, submit anti-duplicate, error wrapping, empty state, native alert, input hints
+- **AI Path Simulation**: P9 simulates user journeys to catch cross-step UX breakdowns
+- **Asset-loss Escalation**: UX flaws in payment/refund/redemption can escalate to 🔴Critical (ux_derived_asset_loss)
+- **Dual-Panel Report**: tech faults and user complaints displayed separately
 
 ---
 
