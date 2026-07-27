@@ -134,7 +134,7 @@ Return ONLY this JSON:
   "summary": "一句话综述（中文）"
 }""",
     context="Independent code review sub-agent. Return only valid JSON.",
-    toolsets=["terminal", "file"]
+    enabled_toolsets=["terminal", "file"]
 )
 ```
 

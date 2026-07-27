@@ -1,5 +1,7 @@
 # Fullstack Review
 
+<!-- Keep in sync with README.md -->
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-React%20%7C%20NestJS%20%7C%20TypeScript-4F46E5)]()
 
@@ -77,7 +79,7 @@ Baseline checks skipped locally are enforced in CI via `--full` mode as the fina
 
 ## 🔧 Core Capabilities
 
-### 15-Stage Automated Pipeline
+### 13-Stage Automated Pipeline
 
 | Stage | Name | Scan Scope |
 |-------|------|-----------|
@@ -97,7 +99,7 @@ Baseline checks skipped locally are enforced in CI via `--full` mode as the fina
 | P10 | Report | Tech/UX dual panels + status column + skip reasons |
 | P11 | On-demand Fix | Allowlist/Blocklist + compile check + re-validation |
 
-### 7 Business Scenarios
+### 8 Business Scenarios (incl. AI Application Security)
 
 | Scenario | Detection | Key Checks |
 |----------|-----------|------------|
@@ -108,6 +110,7 @@ Baseline checks skipped locally are enforced in CI via `--full` mode as the fina
 | 💬 Info Exchange | Bidirectional ops | Desensitization, permission notice, mutual confirmation |
 | ⏳ Async Long-task | State machine + queue/task entities | Progress persistence, timeout, recovery |
 | 📨 Message Queue | MQ deps + Queue decorators | Idempotency, DLQ, transactional messages |
+| 🤖 AI Application Security | LLM SDK/Vector DB/RAG framework | Fallback chain, prompt injection, output safety (P2.7 on-demand) |
 
 ### Dual-Branch Review
 

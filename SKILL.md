@@ -1,6 +1,6 @@
 ---
 name: fullstack-review
-description: "React+TS+NestJS 服务业 SaaS 全栈预提交自动化评审 Skill，覆盖 Web/H5/RN/小程序四端，15 阶段流水线、7 大业务场景扫描，内置多租户鉴权、支付、MQ 安全校验，支持 AI 逻辑评审与可控自动修复，区分技术故障与用户投诉双维度风险。"
+description: "React+TS+NestJS 服务业 SaaS 全栈预提交自动化评审 Skill，覆盖 Web/H5/RN/小程序四端，13 阶段审查流水线（含子模块共 18 项检查）、8 大业务场景扫描（含 AI 应用安全），内置多租户鉴权、支付、MQ 安全校验，支持 AI 逻辑评审与可控自动修复，区分技术故障与用户投诉双维度风险。"
 version: 6.3.1
 author: Hermes Agent
 license: MIT
@@ -257,6 +257,8 @@ P11   按需修复
 - 用户在任何端刷新页面看到支付状态一致 → 走 **P4.5**
 - 用户 A 不应看到用户 B 的订单 → 走 **P4.6**
 
+> P4.6 是独立安全基线，不参与此三角。此处举例仅说明各阶段的典型职责分工，非边界归属。
+
 ---
 
 ## Fast Path 六档分流（概念层）
@@ -327,7 +329,7 @@ P0~P10 自动运行 → 输出报表
 
 ## 阶段索引（Stage Index）
 
-> 🎯 = 何时加载 reference | ⏭️ = 可跳过条件 | 📄 = reference 文件路径 | 📦 = 子模块
+> 🎯 = 何时加载 reference | ⏭️ = 可跳过条件 | 📄 = reference 文件路径 | 📦 = 子模块（对应 reference 文件内同级章节标题）
 
 ---
 
