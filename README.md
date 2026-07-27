@@ -1,5 +1,7 @@
 # Fullstack Review
 
+<!-- 修改时请同步更新 README.en.md -->
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-React%20%7C%20NestJS%20%7C%20TypeScript-4F46E5)]()
 
@@ -77,7 +79,7 @@ hermes review --full
 
 ## 🔧 核心能力
 
-### 15 阶段自动审查流水线
+### 13 阶段自动审查流水线
 
 | 阶段 | 名称 | 扫描范围 |
 |------|------|---------|
@@ -97,7 +99,7 @@ hermes review --full
 | P10 | 报表 | 技术故障/用户投诉双板块 + 状态列 + 跳过原因 |
 | P11 | 按需修复 | 黑白名单 + 编译校验 + 重验证 |
 
-### 7 大业务场景
+### 8 大业务场景（含 AI 应用安全）
 
 | 场景 | 检测关键词 | 审查重点 |
 |------|---------|---------|
@@ -108,6 +110,7 @@ hermes review --full
 | 💬 信息交互 | 用户间双向操作 | 脱敏、权限提示、双向确认 |
 | ⏳ 异步长任务 | 状态机 + queue/task 实体 | 进度持久化、超时、恢复 |
 | 📨 消息队列 | MQ 依赖 + Queue 装饰器 | 幂等、死信、事务消息 |
+| 🤖 AI 应用安全 | LLM SDK/向量数据库/RAG 框架 | 降级兜底、Prompt注入、输出安全渲染（P2.7按需激活） |
 
 ### 双分支审查
 
