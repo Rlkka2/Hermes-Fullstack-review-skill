@@ -92,6 +92,7 @@ React + TypeScript + NestJS 全栈项目提交前自动审查，覆盖 Web / H5 
 | 异步长任务场景 | `async_long_task` | P8（独立阶段） |
 | 信息交互场景 | `info_exchange` | P5.6 |
 | 消息队列场景 | `message_queue` | P5.2-ext（按需激活） |
+| AI 应用场景 | `ai_application` | P2.7（按需激活） |
 
 ---
 
@@ -190,7 +191,8 @@ P2    安全扫描
         ├── P2.3 React 前端专项安全
         ├── P2.4 Dependency Security（依赖 CVE 扫描）
         ├── P2.5 Log Desensitization（日志敏感信息脱敏）
-        └── P2.6 Env Config Isolation（环境配置隔离）
+        ├── P2.6 Env Config Isolation（环境配置隔离）
+        └── P2.7 AI Application Security（AI 应用安全与可靠性，按需激活）
 P3    平台适配 + 跨端体验一致性（仅 diff 文件）
 P4    前后端契约 + 错误体系（两端同在 diff 才比对；缺一端→⏭️+弱提示）
 P4.5  用户状态一致性基线（仅 diff 文件）
@@ -319,8 +321,11 @@ Monorepo 项目示例：
 | Async Long-task（异步长任务行为） | Model 含状态机 `pending→processing→completed→failed` 流转；存在 `queue`/`task`/`job`/`process` 实体；使用 Bull/BullMQ/Agenda 等队列库 | `async_long_task` |
 | Info Exchange（信息交换行为） | 存在用户间消息/查看/联系方式交换等双向操作；存在聊天/私信/咨询模块 | `info_exchange` |
 | Message Queue（消息队列行为） | 依赖包：`bull`/`bullmq`/`amqplib`/`kafkajs`/`@nestjs/bull`/`@nestjs/microservices`；代码特征：`@Queue()`/`@Process()`/`@MessagePattern()` 装饰器、`sendQueue`/`publish`/`consume`/`emit` 方法调用 | `message_queue` |
+| AI Application（AI 应用行为） | 依赖包：`openai`/`langchain`/`@langchain/core`/`anthropic`/`llamaindex`/`@azure/openai`/`chromadb`/`pinecone-client`/`weaviate-client`/`pgvector`/`tiktoken`/`gpt-tokenizer`；代码特征：`chatWithAI`/`generateAnswer`/`askLLM`/`RAG`/`vectorStore`/`embedding` 等函数调用 | `ai_application` |
 
 > **MQ 双重判定逻辑**：①检测项目是否引入 `bull` / `bullmq` / `amqplib` / `kafkajs` / `@nestjs/bull` 等 MQ 依赖包；②代码中是否存在 `@Queue()` 装饰器、`sendQueue` / `publish` / `consume` 等业务方法调用。满足**任意一类**即提升置信度，两类同时命中判定为 **High 置信自动激活**，无需人工确认。
+>
+> **AI Application 激活逻辑**：检测到 LLM SDK（openai/langchain 等）或向量数据库（chromadb/pinecone 等）或 RAG 框架（+ tokenizer）中**任意一项** → Medium 置信度激活；满足**两项及以上** → High 置信自动激活。
 
 ### 置信度标记（Confidence Marking）
 
@@ -553,6 +558,40 @@ npm audit --json --only=prod 2>/dev/null | \
 | 硬编码线上域名/IP | 🔴Critical | 代码中出现 `https://api.prod.com` / `https://xxx.com` 等非 `localhost` 的完整 URL |
 | 第三方密钥硬编码 | 🔴Critical | `wxAppId = 'wx123...'` / `secret = 'sk-xxx'` 直接写在代码中 |
 | 测试开关硬编码 | 🟠High | `MOCK = true` / `DEBUG = true` / `BYPASS_AUTH = true` 等未通过 `process.env` 控制 |
+
+### P2.7 AI Application Security（AI 应用安全与可靠性）— 按需激活
+
+要求 P0.5 检测到 `ai_application` 行为特征。不激活则完全跳过此模块。
+
+> **覆盖范围**：P2.5（日志脱敏）同步覆盖 AI 调用路径——LLM 调用时用户问题可能包含个人信息，禁止在日志中原样输出用户 prompt。
+
+#### 规则清单
+
+| # | 规则 | 严重度 | 检测内容 | 说明 |
+|---|------|:---:|---------|------|
+| 1a | **LLM 降级兜底** | 🔴Critical | LLM 调用是否有 `try-catch` 包裹；`catch` 分支是否有预设话术常量，而非直接 `throw error` | AI 调用失败后用户看到的应是"我需要进一步核实"而非技术错误堆栈 |
+| 1b | **完整四层降级链** | 🟡Medium | 知识库命中→直接返回 / 未命中→LLM兜底 / 输出校验 / 预设话术兜底，四层是否完整 | 含运行时行为，静态代码仅能做部分检测。初版可选 |
+| 2 | **LLM 输出安全渲染** | 🔴Critical | **格式层**：`JSON.parse()` 是否有 `try-catch` 包裹（LLM 可能返回非标准 JSON）；**安全层**：LLM 输出渲染前是否经过 `DOMPurify.sanitize()` 或使用 `textContent`。原规则2+5合并，同源扫描，dedup 合并 | AI 应用前端崩溃+新型 XSS 的一体两面 |
+| 3 | **输出可信度兜底** | 🟠High | RAG 场景下 LLM 回答是否附带 `source`/`citations`/`references` 字段；前端是否展示来源引用 | 初版可选，标记建议不强制阻断 |
+| 4 | **Prompt 注入防线** | 🔴Critical | 用户输入拼入 prompt 模板前是否经过 `sanitize`/`replace`/关键词过滤；是否有系统 prompt 和用户 prompt 的分隔标记 | **仅在 diff 包含 prompt 模板文件时触发**。若 sanitize 逻辑在 diff 外 → ⏭️ 跳过，标注原因，同 P4.6 降级口径 |
+| 5 | **Token 管理** | 🟠High | 检索结果是否有 `topK` 限制和相似度阈值 `score` 过滤；拼接后的上下文是否有 `maxTokens` 截断；是否使用 tokenizer 计数而非字符数估算 | 无限制拼接→上下文过长稀释关键信息+超时风险 |
+
+#### 与其他阶段的边界
+
+| 其他阶段 | 与 P2.7 的关系 |
+|---------|---------------|
+| P2.3 React 前端安全 | P2.3 检测开发者代码中的 XSS（硬编码 `dangerouslySetInnerHTML`）；P2.7 检测 **LLM 动态生成内容**的渲染安全。互补，不重复 |
+| P2.5 日志脱敏 | P2.5 同步覆盖 AI 调用路径——用户 prompt 可能含个人信息，禁止原样输出到日志 |
+| P4.4 错误体系 | P4.4 管通用接口错误的友好封装；P2.7 专门管 LLM 调用失败时的降级话术。场景不同 |
+| P8 异步长任务 | P8 管任务的进度/超时/恢复；P2.7 管 LLM 同步调用失败时的降级链 |
+
+#### 不纳入的理由（备查）
+
+| 想法 | 不纳入原因 |
+|------|-----------|
+| Token 成本监控 | RAG 架构下仅兜底走 LLM，成本可控 |
+| LLM 调用频率限制 | 属于业务策略非安全基线，前端防重点击 P7 已覆盖 |
+| Prompt 版本管理 | 属于工程实践建议，不属于检查规则 |
 
 ---
 

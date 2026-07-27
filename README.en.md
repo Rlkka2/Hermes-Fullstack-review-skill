@@ -84,7 +84,7 @@ Baseline checks skipped locally are enforced in CI via `--full` mode as the fina
 | P0 | Project Detection | `package.json` (single file) |
 | P0.5 | Behavioral Detection | Diff files only for scenario inference |
 | P1 | Change Scan | `git diff --cached` |
-| P2 | Security Scan | Diff `+` lines (incl. CVE/log/env) |
+| P2 | Security Scan | Diff new lines (incl. CVE/log/env/AI app security) |
 | P3 | Platform Adaptation | Diff files only |
 | P4 | Frontend-Backend Contract | Both sides in diff → compare; one side missing → ⏭️ |
 | P4.5 | State Consistency | Diff files only |
@@ -122,6 +122,14 @@ Baseline checks skipped locally are enforced in CI via `--full` mode as the fina
 - **AI Path Simulation**: P9 simulates user journeys to catch cross-step UX breakdowns
 - **Asset-loss Escalation**: UX flaws in payment/refund/redemption can escalate to 🔴Critical (ux_derived_asset_loss)
 - **Dual-Panel Report**: tech faults and user complaints displayed separately
+
+### AI Application Security (v6.2)
+
+P2.7 auto-activates when LLM SDK/vector DB/RAG framework deps detected:
+- **Fallback chain**: try-catch + preset responses for LLM failures
+- **Output safety**: format validation + XSS sanitization for LLM-generated content
+- **Prompt injection**: user input sanitization before prompt assembly
+- **Token management**: topK/score/maxTokens limits for retrieval context
 
 ---
 
