@@ -1,7 +1,7 @@
 ---
 name: fullstack-review
-description: "Pre-commit automated review for React+TS+NestJS full-stack projects across Web/H5/App/Mini Program platforms, with service-industry UX baseline."
-version: 6.3.0
+description: "React+TS+NestJS 服务业 SaaS 全栈预提交自动化评审 Skill，覆盖 Web/H5/RN/小程序四端，15 阶段流水线、7 大业务场景扫描，内置多租户鉴权、支付、MQ 安全校验，支持 AI 逻辑评审与可控自动修复，区分技术故障与用户投诉双维度风险。"
+version: 6.3.1
 author: Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -38,9 +38,7 @@ React + TypeScript + NestJS 全栈项目提交前自动审查，覆盖 Web / H5 
 ## 术语对照表（Glossary）
 
 | 中文术语 | English（固定标识，不可修改） | 用途 |
-
----
-
+|---------|---------------------------|------|
 | 唯一可信源 | Single Source of Truth (SSOT) | 状态一致性检查 |
 | 幂等 | Idempotent | 支付/核销/重复请求 |
 | 状态机 | State Machine | 业务流转检查 |
@@ -79,8 +77,7 @@ React + TypeScript + NestJS 全栈项目提交前自动审查，覆盖 Web / H5 
 
 ## 场景标识枚举表（Scenario Identifiers）
 
-
----
+配置文件 `scenarios` 字段与 `--include` / `--exclude` 参数使用以下英文标识：
 
 | 中文名称 | 英文标识（用于 --include/--exclude/config） | 对应检查模块 |
 |---------|------------------------------------------|-------------|
@@ -99,8 +96,6 @@ React + TypeScript + NestJS 全栈项目提交前自动审查，覆盖 Web / H5 
 
 以下为指导性分级框架，非强制死规则。新增检查项时参照此框架赋值：
 
----
-
 | 严重度 | 标识 | 判定标准 |
 |-------|------|---------|
 | Critical | 🔴 | 会导致资金损失 / 数据泄露 / 服务不可用 / 法律合规风险 |
@@ -115,9 +110,7 @@ React + TypeScript + NestJS 全栈项目提交前自动审查，覆盖 Web / H5 
 ## CLI 参数汇总表（CLI Parameters）
 
 | 参数 | 作用 | 示例 |
-
----
-
+|------|------|------|
 | `--platforms=<list>` | 手动指定覆盖端，覆盖 P0 自动推断 | `--platforms=web,h5,mini` |
 | `--include=<list>` | 手动强制激活场景规则集 | `--include=transaction,message_queue` |
 | `--exclude=<list>` | 手动关闭场景规则集 | `--exclude=benefits` |
@@ -130,9 +123,7 @@ React + TypeScript + NestJS 全栈项目提交前自动审查，覆盖 Web / H5 
 ## 两种运行模式（Two Modes）
 
 | | Incremental Mode（默认） | Full Baseline Mode |
-
----
-
+|---|---|---|
 | 触发方式 | `git commit` 前自动触发 | 手动执行 `hermes review --full` |
 | 扫描范围 | `git diff --cached` | 对比分支完整差异（非暂存区） |
 | 执行速度 | 快 | 较慢 |
@@ -147,8 +138,7 @@ React + TypeScript + NestJS 全栈项目提交前自动审查，覆盖 Web / H5 
 
 ## Diff-Only 原则（Diff-Only Principle）
 
-
----
+**Incremental Mode 核心规则：只审查 `git diff --cached` 中的文件，不遍历项目全库。**
 
 - 凡是可以仅靠 diff 文件完成的检查 → 正常执行
 - 凡是需要 diff 之外的文件作为参照才能完成的检查 → ⏭️ 跳过，报表标注原因
@@ -165,8 +155,6 @@ Full Baseline Mode（`--full`）不受此限，所有基线规则强制全库扫
 
 所有阶段输出的缺陷在进入 P10 报表前执行去重：
 
----
-
 ```
 去重键（Dedup Key） = file + line_number
 合并规则:
@@ -178,19 +166,11 @@ Full Baseline Mode（`--full`）不受此限，所有基线规则强制全库扫
 
 ---
 
-## 流水线概览（Pipeline Overview）
-
-
----
-
 ## 暂存区读取规范（Staging Area Reading）
 
 > **强制规则**：所有阶段读取变更文件内容时，必须使用 `git show :<path>` 获取暂存区快照，**禁止直接读取工作区文件**。
 >
 > 原因：用户可能使用 `git add -p` 只暂存文件的部分改动。若直接读工作区文件，会把未 add 的代码也纳入审查，直接违反 Diff-Only 原则。
-
----
-
 
 ---
 
@@ -203,9 +183,10 @@ Full Baseline Mode（`--full`）不受此限，所有基线规则强制全库扫
 
 ---
 
+## 流水线概览（Pipeline Overview）
 
----
-
+```
+P0    项目类型检测（含 Monorepo 检测）
 P0.5  业务行为识别（仅 diff 文件推断场景）
 P1    变更扫描（含删除文件路径匹配优先级 + 文案文件白名单）
       ├── 暂存区读取：强制 git show :<path>，禁止读工作区
@@ -249,9 +230,7 @@ P11   按需修复
 
 这是整个流水线最容易混淆的三个阶段，必须先划定边界：
 
-
----
-
+```
 ┌─────────────────────────────────────────────────────────────┐
 │ P4.5 → 全局状态一致性基线（通用机制，不关心"什么业务"）          │
 │        检查：状态是否后端唯一可信源？                           │
@@ -275,6 +254,8 @@ P11   按需修复
 **举例说明边界**：
 - 用户下单后支付 → 支付幂等、金额校验走 **P5.1 交易场景**
 - 支付后触发后台发货任务 → 任务进度持久化、超时兜底走 **P8**
+- 用户在任何端刷新页面看到支付状态一致 → 走 **P4.5**
+- 用户 A 不应看到用户 B 的订单 → 走 **P4.6**
 
 ---
 
@@ -294,7 +275,7 @@ P1 之后根据变更文件类型执行分流判定，避免"改了 2 个 CSS �
 
 ---
 
-### commit 阻断阈值
+## commit 阻断阈值
 
 ```
 存在任意 🔴Critical → 阻断提交（不可跳过，必须修复）
@@ -302,10 +283,9 @@ P1 之后根据变更文件类型执行分流判定，避免"改了 2 个 CSS �
 所有 Critical = 0 且 High = 0 → 直接通过
 ```
 
-
 ---
 
-### 两层防御架构
+## 两层防御架构
 
 ```
 ① 本地 pre-commit（Incremental Mode）
@@ -471,8 +451,6 @@ P0~P10 自动运行 → 输出报表
 
 ---
 
----
-
 ## 注意事项（Pitfalls）
 
 1. **Empty diff**：`git diff --cached` 为空 → 提示用户 `git add` 或退出
@@ -484,4 +462,4 @@ P0~P10 自动运行 → 输出报表
 7. **文案跨文件不一致**：Incremental Mode 只检查 diff 内的文案；全量文案一致性需使用 Full Baseline Mode
 8. **大 diff（>15,000 字符）**：P9 按文件边界自动分片，结果合并去重
 9. **P4.5/P8 重复告警**：依赖全局 `file:line` 去重机制，合并为一条保留最高严重度
-10. **依赖安全扫描**：仅扫描 `package.json` diff 中新增/升级的包，不做全量 `npm audit`
+10. **依赖安全扫描**：先跑全量 `npm audit` 获取漏洞数据，再按 diff 中新增/升级的包名过滤结果（不直接逐包扫描，避免遗漏存量依赖的已知漏洞）
