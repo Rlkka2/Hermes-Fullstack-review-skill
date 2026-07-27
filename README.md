@@ -79,7 +79,7 @@ hermes review --full
 
 ## 🔧 核心能力
 
-### 13 阶段自动审查流水线
+### 15 阶段自动审查流水线
 
 | 阶段 | 名称 | 扫描范围 |
 |------|------|---------|
@@ -205,9 +205,10 @@ hermes review --full
       "info_exchange": "auto",
       "message_queue": "auto"
     },
-    "ai_reviewer": { "confidence_threshold": 0.75 },
-    "auto_fix": { "max_rounds": 2 },
-    "report": { "lang": "zh", "output_format": ["terminal", "markdown"] }
+    "ai_reviewer": { "confidence_threshold": 0.75, "diff_shard_threshold": 15000 },
+    "auto_fix": { "max_rounds": 2, "allowlist_extend": [], "blocklist_extend": [] },
+    "report": { "lang": "zh", "output_format": ["terminal", "markdown"] },
+    "suppressions": []
   }
 }
 ```
@@ -257,7 +258,7 @@ hermes review --full
 | Severity | `Critical` / `High` / `Medium` / `Info` |
 | Experience Risk | `high_complaint` / `medium_complaint` / `no_risk` |
 | Fix Priority | `block` / `this_iteration` / `next_iteration` / `optional` |
-| Source | `【静态规则】` / `【AI评审】` |
+| Source | `【静态规则】` / `🤖【AI推断-待确认】` / `【静态规则+AI评审】` |
 
 ---
 
@@ -266,7 +267,7 @@ hermes review --full
 <details>
 <summary><b>只改了两个CSS文件，会扫全库吗？</b></summary>
 
-不会。本地模式遵循 **Diff-Only 原则**，只审查 `git add` 的文件。改了 2 个 CSS → 只跑 P1/P2/P3/P10，秒级出报表。P4/P5/P8 等与 CSS 无关的模块直接 ⏭️ 跳过。
+不会。本地模式遵循 **Diff-Only 原则**，只审查 `git add` 的文件。改了 2 个 CSS → Fast Path 识别为"前端样式"档位，只跑基础样式合规检查 + P10，秒级出报表。P4/P5/P8 等无关模块直接 ⏭️ 跳过。
 
 </details>
 
