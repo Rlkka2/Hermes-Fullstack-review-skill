@@ -77,7 +77,7 @@ Baseline checks skipped locally are enforced in CI via `--full` mode as the fina
 
 ## 🔧 Core Capabilities
 
-### 13-Stage Automated Pipeline
+### 15-Stage Automated Pipeline
 
 | Stage | Name | Scan Scope |
 |-------|------|-----------|
